@@ -1,6 +1,7 @@
 // COSTA SOL: Heatwave — make.fun gta6-01 entry (recorded build)
 const BUILD_TAG = "costa-sol-heatwave-2026";
 // authored by the recorded COSTA SOL worker (resubmission)
+// final scene-polish pass — recorded 2026-11-18
 // A working gta6-01 entry (Node 22, standard library only): the game is this directory's
 // game/ folder, plain static files a desktop browser loads offline (game/index.html and its ES
 // modules, no library and no network request), and the program hands it in. It copies game/ and
