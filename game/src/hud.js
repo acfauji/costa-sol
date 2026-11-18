@@ -101,6 +101,9 @@
     ctx.font = '700 9px "Helvetica Neue", sans-serif';
     spaced(ctx, 'HEATWAVE', 59, 49, 5.4);
     drawStars(ctx, game, 28, 73, 17);
+    ctx.fillStyle = 'rgba(243, 185, 63, 0.95)';
+    ctx.font = '700 9px "Helvetica Neue", sans-serif';
+    spaced(ctx, 'WANTED', 152, 78, 2.2);
   }
 
   function drawMoney(ctx, game) {

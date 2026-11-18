@@ -93,6 +93,10 @@
     addPed(game, blockNE, 3, 1700, 1298, 0.4, '#5e8f9a');
     addPed(game, blockNE, 2, 1680, 1290, 2.8, '#d9d2c0');
     addPed(game, blockNE, 1, 1810, 1140, 1.2, '#8a6e5a');
+    addPed(game, blockSE, 0, 1718, 1232, 1.9, '#e8b04c', '#5a3a26');
+    addPed(game, blockSE, 0, 1808, 1218, -1.2, '#5e8f9a', '#d8a578');
+    addPed(game, blockNE, 2, 1742, 1278, 2.6, '#c96b52', '#8d5a3b');
+    addPed(game, blockNE, 1, 1788, 1188, 0.8, '#b78ba8', '#6b432c');
     addCar(game, 0, 1120, 1240, 0, '#c8452f');
     addCar(game, 3, 1500, 1200, 0, '#e8b04c');
     const car = CC.Vehicles.create(0, 1765, 1240, 0.03, { color: '#2f8f8a' });
@@ -142,8 +146,14 @@
         addCar(game, n % 6, 1250 + n * 280, 2320 + lane, lane > 0 ? 0 : Math.PI, null);
       }
     }
-    placeCamera(game, 2030, 2025, 0.04, 0.27);
-    game.hudHidden = true;
+    for (let n = 0; n < 10; n += 1) {
+      const block = city.blocks[(n * 5 + 23) % city.blocks.length];
+      const corner = n % 4;
+      const point = CC.People.cornerPoint(block, corner);
+      addPed(game, block, corner, point.x + rng.range(-30, 30), point.y + rng.range(-8, 8), rng() * U.TAU);
+    }
+    placeCamera(game, 2020, 2000, 0.04, 0.32);
+    game.hudHidden = false;
   }
 
   function stageOnFoot(game) {
