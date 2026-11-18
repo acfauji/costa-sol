@@ -1,61 +1,157 @@
-// Every tuning number and colour in one place. The playfield is a fixed 1280x720 logical area;
-// the renderer scales it to the window, so no rule below depends on the screen size.
+(function () {
+  const CC = (window.CC = window.CC || {});
 
-export const FIELD = { width: 1280, height: 720, groundY: 664 };
+  const BLOCK = 460;
+  const ROAD = 90;
+  const GRID = 7;
+  const MARGIN = 120;
+  const SPACING = BLOCK + ROAD;
+  const LAND = 4060;
 
-/** The simulation's fixed step, in seconds: 60 updates a second whatever the display's rate. */
-export const STEP = 1 / 60;
+  const C = {
+    TITLE: 'COSTA SOL',
+    SUBTITLE: 'HEATWAVE',
+    SEED_DEFAULT: 1337,
+    VERSION: 'v1.0',
+    SAVE_KEY: 'costasol.heatwave.save.v1',
+    MUTE_KEY: 'costasol.heatwave.muted.v1',
+    STEP: 1 / 60,
+    MAP: {
+      block: BLOCK,
+      road: ROAD,
+      grid: GRID,
+      margin: MARGIN,
+      spacing: SPACING,
+      land: LAND,
+      edge: 4068,
+      pierEnd: 4240,
+      roadHalf: ROAD / 2,
+    },
+    PLAYER: {
+      radius: 12,
+      speed: 152,
+      sprint: 238,
+      health: 100,
+      armor: 50,
+      fireDelay: 0.17,
+      punchDelay: 0.42,
+      punchRange: 46,
+      reach: 70,
+    },
+    CAMERA: {
+      footZoom: 1.12,
+      carZoom: 0.8,
+      menuZoom: 0.31,
+      cityZoom: 0.305,
+      followRate: 5.2,
+      aimZoom: 0.98,
+    },
+    CAR: {
+      drag: 0.5,
+      brake: 340,
+      reverseFactor: 0.34,
+      offRoadDrag: 1.5,
+    },
+    TRAFFIC: {
+      count: 22,
+      cruiseMin: 72,
+      cruiseMax: 118,
+      lane: 20,
+      stopGap: 62,
+    },
+    PEDS: {
+      count: 46,
+      walkMin: 22,
+      walkMax: 38,
+      run: 92,
+    },
+    WANTED: {
+      max: 5,
+      decayAfter: 9,
+      decayRate: 13,
+      spawnDelay: 1.6,
+      policeHealth: 3,
+    },
+    ECONOMY: {
+      stealCar: 120,
+      missionBase: 150,
+      healCost: 180,
+      armorCost: 240,
+      deathCost: 120,
+    },
+    PALETTE: {
+      water: '#186a76',
+      waterDeep: '#115460',
+      waterLight: '#3c9aa1',
+      foam: 'rgba(225, 245, 235, 0.55)',
+      sand: '#e7ce97',
+      sandDark: '#cbb07a',
+      asphalt: '#47443e',
+      asphaltLight: '#555049',
+      asphaltDark: '#3b3834',
+      lane: '#e6d6ab',
+      laneSoft: 'rgba(230, 214, 171, 0.36)',
+      sidewalk: '#d8cbb0',
+      sidewalkAlt: '#cec0a3',
+      sidewalkLine: 'rgba(121, 106, 82, 0.35)',
+      curb: '#b3a688',
+      lot: '#9a9284',
+      lotDark: '#827a6d',
+      park: '#5d8f57',
+      parkLight: '#74a667',
+      path: '#d6c69f',
+      building: ['#e0a55f', '#d88763', '#c86d58', '#e6bd77', '#b9c6a1', '#8bb5ae', '#a7c2cd', '#e6d2a4', '#c5a29d', '#d9b295', '#9dbdab', '#d5ab62'],
+      roof: ['#c4834d', '#b56652', '#a55344', '#c79b5c', '#96a37f', '#6f948f', '#849fa9', '#c9b07f', '#a3817c', '#b58c71', '#7c9a88', '#b3884a'],
+      wallShade: 0.62,
+      glass: '#9fc3c1',
+      glassDark: '#5c7f84',
+      palm: '#2f6d46',
+      palmLight: '#4b8d55',
+      trunk: '#8a6844',
+      gold: '#f3b93f',
+      goldDeep: '#c4861d',
+      cream: '#f7eed9',
+      ink: '#161a1e',
+      inkSoft: 'rgba(22, 26, 30, 0.72)',
+      red: '#e34b3a',
+      blue: '#3f8fd8',
+      green: '#57b36b',
+      purple: '#8f5bb5',
+      hud: 'rgba(16, 21, 25, 0.78)',
+      sun: 'rgba(255, 168, 83, 0.13)',
+      shadow: 'rgba(24, 32, 36, 0.30)',
+    },
+    DISTRICTS: ['OLD TOWN', 'LA MARINA', 'NEON ROW', 'PALM HEIGHTS', 'COBALT DOCKS', 'SUNSET VILLAGE', 'CORAL HEIGHTS'],
+    GANGS: [
+      { name: 'Cobalt Kings', color: '#3f6fb5', ink: '#15233f' },
+      { name: 'Neon Saints', color: '#8f5bb5', ink: '#2c1a3a' },
+      { name: 'Salt Cartel', color: '#2f8f74', ink: '#13352d' },
+    ],
+    CHARACTERS: {
+      hero: { name: 'Rico Vela', tag: 'ROOK', color: '#d8a85c' },
+      fixer: { name: 'Mara Voss', color: '#e07a5f' },
+      cop: { name: 'Lt. Ivo Kade', color: '#3f6fb5' },
+      boss: { name: 'Nadia Krane', color: '#8f5bb5' },
+      club: { name: 'Serge Okonkwo', color: '#57b36b' },
+      reporter: { name: 'Tess Marlow', color: '#d9c07a' },
+    },
+    VEHICLES: [
+      { name: 'Vela GT', len: 66, wid: 28, max: 262, accel: 200, turn: 2.55, mass: 1.0, colors: ['#c8452f', '#e8b04c', '#2f8f8a', '#ece3cf', '#262a35'], style: 'coupe' },
+      { name: 'Marea Sedan', len: 70, wid: 30, max: 214, accel: 148, turn: 2.2, mass: 1.1, colors: ['#e6dcc6', '#7d8b95', '#b75c48', '#3f6f7a', '#d9b169'], style: 'sedan' },
+      { name: 'Toro Pickup', len: 78, wid: 33, max: 198, accel: 136, turn: 1.95, mass: 1.4, colors: ['#c88648', '#5f7a52', '#8e3f35', '#d8d1bd', '#42536b'], style: 'pickup' },
+      { name: 'Sirocco Coupe', len: 63, wid: 27, max: 272, accel: 212, turn: 2.8, mass: 0.92, colors: ['#e0553f', '#f0c14b', '#3a9e9a', '#f2ead9', '#23262e'], style: 'sport' },
+      { name: 'Coral Van', len: 80, wid: 35, max: 176, accel: 112, turn: 1.7, mass: 1.5, colors: ['#d9a6a1', '#e3d5b5', '#71918f', '#b96b4d', '#a9b6bf'], style: 'van' },
+      { name: 'Reef Runner', len: 61, wid: 26, max: 244, accel: 186, turn: 2.65, mass: 0.95, colors: ['#2f8f8a', '#e8b04c', '#c8452f', '#efdfc4', '#3c4d5c'], style: 'sport' },
+    ],
+    PED_COLORS: ['#e3b25e', '#c96b52', '#5e8f9a', '#d6c9a8', '#8a6e5a', '#4f7a62', '#b78ba8', '#7c8dbb', '#d9d2c0', '#a65a4d'],
+    SKIN: ['#8d5a3b', '#b97c52', '#d8a578', '#6b432c', '#c98f63', '#e6b98d', '#5a3a26'],
+    WEAPONS: {
+      pistol: { name: 'Pistol', damage: 34, range: 760, delay: 0.17, sound: 'shot' },
+      smg: { name: 'SMG', damage: 19, range: 640, delay: 0.085, sound: 'smg' },
+    },
+  };
 
-export const PLAYER = {
-  width: 72,
-  height: 24,
-  speed: 560,
-  invulnerable: 1.5,
-};
+  C.MAP.size = MARGIN + GRID * SPACING + ROAD / 2;
 
-export const LIVES = 3;
-
-export const BLOCK = {
-  minWidth: 40,
-  maxWidth: 110,
-  height: 36,
-  speed: 240,
-  speedPerLevel: 30,
-  speedJitter: 90,
-  interval: 0.55,
-  intervalScale: 0.88,
-  minInterval: 0.14,
-  dodgePoints: 1,
-};
-
-export const COIN = {
-  size: 24,
-  speed: 190,
-  speedPerLevel: 14,
-  interval: 1.4,
-  intervalJitter: 0.8,
-  points: 10,
-};
-
-/** Seconds of play per level, and the last level: speeds and spawn rates stop growing there. */
-export const LEVEL = { seconds: 12, max: 12 };
-
-/** How many falling things can exist at once; the pool is allocated once, at boot. */
-export const POOL_SIZE = 64;
-
-export const PALETTE = {
-  backdrop: '#11141b',
-  sky: '#1b1f2a',
-  ground: '#2a3040',
-  player: '#4fc3f7',
-  block: '#e5534b',
-  coin: '#f2c94c',
-  panel: '#252b38',
-  text: '#eef1f5',
-  muted: '#8b93a3',
-};
-
-export const FONT = 'system-ui, -apple-system, "Segoe UI", sans-serif';
-
-/** Where the best score is kept between visits (this browser only). */
-export const BEST_KEY = 'block-dodger.best';
+  CC.C = C;
+})();
