@@ -669,7 +669,7 @@
       }
       const swing = Math.sin(ped.bob) * 4;
       ctx.strokeStyle = ped.pants;
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 5;
       ctx.beginPath();
       ctx.moveTo(-1, 1);
       ctx.lineTo(-1 + swing * 0.4, 8);
@@ -678,20 +678,20 @@
       ctx.stroke();
       ctx.fillStyle = ped.shirt;
       ctx.beginPath();
-      ctx.ellipse(0, 0, 7, 9, 0, 0, U.TAU);
+      ctx.ellipse(0, 0, 9, 11, 0, 0, U.TAU);
       ctx.fill();
       ctx.fillStyle = ped.skin;
       ctx.beginPath();
-      ctx.arc(3.5, 0, 5, 0, U.TAU);
+      ctx.arc(3.5, 0, 6.5, 0, U.TAU);
       ctx.fill();
       ctx.fillStyle = ped.hair;
       ctx.beginPath();
-      ctx.arc(2.5, 0, 4.4, Math.PI * 0.55, Math.PI * 1.45);
+      ctx.arc(2.5, 0, 5.6, Math.PI * 0.55, Math.PI * 1.45);
       ctx.fill();
       if (ped.hat) {
         ctx.fillStyle = '#e8d8b4';
         ctx.beginPath();
-        ctx.arc(2.5, 0, 5.2, 0, U.TAU);
+        ctx.arc(2.5, 0, 6.6, 0, U.TAU);
         ctx.fill();
       }
       if (ped.bag) {

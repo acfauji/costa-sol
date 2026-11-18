@@ -97,6 +97,8 @@
     addPed(game, blockSE, 0, 1808, 1218, -1.2, '#5e8f9a', '#d8a578');
     addPed(game, blockNE, 2, 1742, 1278, 2.6, '#c96b52', '#8d5a3b');
     addPed(game, blockNE, 1, 1788, 1188, 0.8, '#b78ba8', '#6b432c');
+    addPed(game, blockNE, 1, 1730, 1206, 0.6, '#ffd166', '#8d5a3b');
+    addPed(game, blockSE, 0, 1800, 1300, -1.4, '#4f7a62', '#d8a578');
     addCar(game, 0, 1120, 1240, 0, '#c8452f');
     addCar(game, 3, 1500, 1200, 0, '#e8b04c');
     const car = CC.Vehicles.create(0, 1765, 1240, 0.03, { color: '#2f8f8a' });
@@ -109,16 +111,19 @@
     game.player.angle = car.angle;
     game.player.aim = car.angle;
     car.speed = 138;
+    CC.Combat.spawnParticles(game, 'spark', 1750, 1252, 6, { speed: 70, life: 999, size: 3, color: '#e8d8b4' });
     addCruiser(game, 1662, 1243, 0.02);
     addCruiser(game, 1648, 1192, 0.36);
     addCruiser(game, 1846, 1238, Math.PI);
+    addCruiser(game, 1702, 1218, 0.18);
+    addCruiser(game, 1812, 1276, -2.9);
     game.missions.loadState(0, false);
     game.missions.debugStart(0);
     game.dialogue = null;
     game.notifications.length = 0;
     game.notify('CRIME · RECKLESS DRIVING', 'crime');
     game.notify('MISSION · WAKE UP CALL', 'mission');
-    placeCamera(game, 1734, 1256, 0.34, 0.94);
+    placeCamera(game, 1748, 1264, 0.42, 1.04);
     game.hudHidden = false;
   }
 
