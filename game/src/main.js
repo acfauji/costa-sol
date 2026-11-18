@@ -524,7 +524,7 @@
     game.shotMode = true;
     game.state = 'play';
     CC.Shots.stage(shot, game);
-    game.hudHidden = shot === 'city';
+    game.hudHidden = false;
     game.renderer.draw(game);
     window.__shotReady = true;
     drawFrame();
