@@ -470,6 +470,7 @@
     CC.People.updatePeds(game, dt);
     CC.People.updateEnemies(game, dt);
     CC.Police.update(game, dt);
+    if (CC.Vehicles && CC.Vehicles.resolveVehicleContacts) CC.Vehicles.resolveVehicleContacts(game);
     game.missions.update(dt);
     updateVehicles(dt);
     CC.Combat.updateEffects(game, dt);

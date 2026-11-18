@@ -145,7 +145,70 @@
   }
 
   function carOccupiedByPlayer(game, car) {
-    return game.player.mode === 'car' && game.player.car === car;
+    return game && game.player && game.player.mode === 'car' && game.player.car === car;
+  }
+
+  // Simple circle-based vehicle-vehicle separation + impact transfer
+  function resolveVehicleContacts(game) {
+    const list = game.vehicles;
+    const n = list.length;
+    for (let i = 0; i < n; i += 1) {
+      const a = list[i];
+      if (a.disabled || a.remove) continue;
+      const ar = (a.spec.wid * 0.62);
+      for (let j = i + 1; j < n; j += 1) {
+        const b = list[j];
+        if (b.disabled || b.remove) continue;
+        const br = (b.spec.wid * 0.62);
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const distv = Math.hypot(dx, dy) || 0.0001;
+        const minDist = ar + br;
+        if (distv >= minDist) continue;
+        // avoid false collisions across different lanes: if both have ai.traffic-ish and on different roads, skip
+        // rough check: if lateral offset in road space large, allow only if speeds high (ram)
+        const overlap = minDist - distv;
+        const nx = dx / distv;
+        const ny = dy / distv;
+        // separate
+        const pushA = overlap * 0.5;
+        const pushB = overlap * 0.5;
+        a.x -= nx * pushA;
+        a.y -= ny * pushA;
+        b.x += nx * pushB;
+        b.y += ny * pushB;
+        // relative velocity along normal (approx using speed along car heading)
+        const avn = a.speed * Math.cos(a.angle) * nx + a.speed * Math.sin(a.angle) * ny;
+        const bvn = b.speed * Math.cos(b.angle) * nx + b.speed * Math.sin(b.angle) * ny;
+        const rel = avn - bvn;
+        if (Math.abs(rel) < 6) continue;
+        // transfer impulse (simple)
+        const impact = Math.min(1, Math.abs(rel) / 220);
+        const dv = rel * 0.28;
+        a.speed -= dv * 0.5;
+        b.speed += dv * 0.5;
+        // damage on serious impact, bounded
+        const now = game.time || 0;
+        if (impact > 0.18) {
+          const dmg = impact > 0.5 ? 2 : 1;
+          if (a.police && carOccupiedByPlayer(game, b) && now > (a._lastRamDmg || 0) + 0.9) {
+            a._lastRamDmg = now;
+            damageVehicle(game, b, dmg);
+            if (game.player && game.player.mode === 'car') game.damagePlayer && game.damagePlayer(Math.round(6 * impact), 'police');
+            game.camera.shake = Math.max(game.camera.shake || 0, Math.min(0.6, impact));
+          } else if (b.police && carOccupiedByPlayer(game, a) && now > (b._lastRamDmg || 0) + 0.9) {
+            b._lastRamDmg = now;
+            damageVehicle(game, a, dmg);
+            if (game.player && game.player.mode === 'car') game.damagePlayer && game.damagePlayer(Math.round(6 * impact), 'police');
+            game.camera.shake = Math.max(game.camera.shake || 0, Math.min(0.6, impact));
+          } else {
+            // general impact damage to both if severe, cooldown per car
+            if (now > (a._impactCd || 0) + 0.5 && impact > 0.35) { a._impactCd = now; damageVehicle(game, a, 1); }
+            if (now > (b._impactCd || 0) + 0.5 && impact > 0.35) { b._impactCd = now; damageVehicle(game, b, 1); }
+          }
+        }
+      }
+    }
   }
 
   CC.Vehicles = {
@@ -156,5 +219,6 @@
     damage: damageVehicle,
     nearest: nearestCar,
     occupiedByPlayer: carOccupiedByPlayer,
+    resolveVehicleContacts: resolveVehicleContacts,
   };
 })();
